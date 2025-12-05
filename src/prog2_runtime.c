@@ -1,8 +1,7 @@
-// POSIX runtime loader (WSL/Linux): dlopen/dlsym
 #include <stdio.h>
 #include <stdlib.h>
 #include <dlfcn.h>
-#include "contracts.h"
+// #include "contracts.h"
 
 typedef float (*pSinIntegral)(float, float, float);
 typedef int* (*pSort)(int*, int);
@@ -12,21 +11,33 @@ static pSort fSort = NULL;
 static void* currentLib = NULL;
 
 static int load_library(const char* path) {
-    void* h = dlopen(path, RTLD_NOW); // загружает библиотеку в память
+    // dlopen загружает библиотеку в память, возвращает дескриптор бибилотеки.
+    // RTLD_NOW — разрешить все символы (например, математические) сразу
+    void* h = dlopen(path, RTLD_NOW);
+
     if (!h) { printf("Failed to load: %s (%s)\n", path, dlerror()); return 0; }
     dlerror();
-    pSinIntegral si = (pSinIntegral)dlsym(h, "SinIntegral"); //  ищет функцию по имени, возвращает её адрес 
+
+    // dlsym ищет функцию по имени, возвращает её адрес в памяти
+    pSinIntegral si = (pSinIntegral)dlsym(h, "SinIntegral");
     pSort so = (pSort)dlsym(h, "Sort");
+
     const char* err = dlerror();
     if (err) { printf("Missing symbols: %s\n", err); dlclose(h); return 0; }
     if (currentLib) dlclose(currentLib);
+
     currentLib = h;
     fSinIntegral = si; fSort = so;
     printf("Loaded %s\n", path);
     return 1;
 }
 
-static void unload_library(void) { if (currentLib) { dlclose(currentLib); currentLib = NULL; } }
+static void unload_library(void) {
+    if (currentLib) {
+        dlclose(currentLib);
+        currentLib = NULL;
+    }
+}
 
 // function pointers declared above
 

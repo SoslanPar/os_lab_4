@@ -1,4 +1,3 @@
-#define BUILDING_DLL
 #include "contracts.h"
 #include <math.h>
 
