@@ -1,56 +1,43 @@
-# OS Lab 4 — Dynamic Libraries (WSL/Linux)
+# Лабораторная работа №4 — Динамические библиотеки (WSL/Linux)
 
-This lab demonstrates two implementations of contracts provided via shared libraries (`.so`) and two test programs:
+Данная лабораторная работа демонстрирует две реализации контрактов, предоставляемых через разделяемые библиотеки (`.so`), и две тестовые программы:
 
-- libv1.so: rectangle method for `SinIntegral` + bubble sort for `Sort`
-- libv2.so: trapezoid method for `SinIntegral` + quicksort for `Sort`
-- prog1: compile-time linked to one library (v1 by default)
-- prog2: runtime loads/switches between `libv1.so` and `libv2.so`
+- libv1.so: метод прямоугольников для `SinIntegral` + пузырьковая сортировка для `Sort`
+- libv2.so: метод трапеций для `SinIntegral` + быстрая сортировка для `Sort`
+- prog1: линкуется с одной библиотекой на этапе компиляции (по умолчанию v1)
+- prog2: загружает/переключает между `libv1.so` и `libv2.so` во время выполнения
 
-## Build (WSL/Linux)
+## Сборка (WSL/Linux)
 
-In WSL terminal:
+В терминале WSL:
 
 ```bash
 make
 ```
 
-Artifacts:
+Результат сборки:
 - `libv1.so`, `libv2.so`
 - `prog1`, `prog2`
 
-## Usage
+## Использование
 
-Input format for both programs:
-- `1 A B e`: computes integral of `sin(x)` on `[A,B]` with step `e`
-- `2 n x1 x2 ... xn`: sorts `n` integers and prints the result
-- Additionally for `prog2.exe`: `0` toggles implementation between `libv1.dll` and `libv2.dll`
+Формат ввода для обеих программ:
+- `1 A B e`: вычисляет интеграл `sin(x)` на `[A,B]` с шагом `e`
+- `2 n x1 x2 ... xn`: сортирует `n` целых чисел и выводит результат
+- Дополнительно для `prog2`: `0` переключает реализацию между `libv1.so` и `libv2.so`
 
-### Examples
-
-```powershell
-# Program 1 (linked to libv1)
-./prog1.exe
-1 0 3.14159 0.01
-2 5 5 3 4 1 2
-```
+### Примеры
 
 ```bash
+# Программа 1 (слинкована с libv1)
 ./prog1
 1 0 3.14159 0.01
 2 5 5 3 4 1 2
 
+# Программа 2 (динамическая загрузка и переключение)
 ./prog2
 1 0 3.14159 0.01
 0
 1 0 3.14159 0.01
 2 6 10 -1 5 0 7 2
 ```
-
-You should see different integral results after toggling, reflecting rectangle vs trapezoid methods.
-
-## Notes
-
-- The functions use C linkage and are available via `dlsym`.
-- `prog1` линкуется с `libv1.so` по умолчанию; чтобы линковаться с `libv2.so`, измените цель `prog1` в `Makefile` на `-lv2`.
-- Step `e` must be positive; if `A > B`, the interval is swapped internally.
